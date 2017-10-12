@@ -8,7 +8,7 @@ GetCard.search = function(searchString) {
 
 return $.ajax({
         type: "GET",
-        dataType: 'json', //mispelled
+        dataType: 'json',
         url: "https://api.magicthegathering.io/v1/cards?name=" + searchString,
         async: false,
         contentType: "text/html",

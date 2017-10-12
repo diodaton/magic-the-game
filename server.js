@@ -32,11 +32,31 @@ io.on('connection',function(socket){
     	}
 
 
-        socket.emit('allplayers',getAllPlayers());
+        socket.emit('allplayers',getAllPlayers(), socket.player);
         socket.broadcast.emit('newplayer',socket.player);
 
         socket.on('disconnect',function(){
             io.emit('remove',socket.player.id);
+        });
+
+        socket.on('requestnewgame', function(currentPlayerId, opponentplayerId){
+
+            var currentPlayer = findPlayerById(currentPlayerId);
+            var opponentPlayer = findPlayerById(opponentplayerId);
+
+
+            Object.keys(io.sockets.connected).forEach(function(socketID){
+
+                var player = io.sockets.connected[socketID].player;
+                if(player.id == opponentplayerId) {
+                    socket.broadcast.to(socketID).emit('requestnewgame', currentPlayer);
+                    return;
+                }
+            });
+
+            socket.broadcast.emit('pendinggame');
+
+
         });
 
         socket.on('updatePlayerList', function(playerList) {
@@ -53,5 +73,13 @@ function getAllPlayers(){
         if(player) players.push(player);
     });
     return players;
+}
+
+function findPlayerById(playerId) {
+    Object.keys(io.sockets.connected).forEach(function(socketID){
+        var player = io.sockets.connected[socketID].player;
+        if(player.id == playerId) return player;
+    });
+    return;
 }
 

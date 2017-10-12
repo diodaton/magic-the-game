@@ -12,22 +12,62 @@ Client.askNewPlayer = function(username, deckname, decklist){
     Client.socket.emit('newplayer', username, deckname, decklist);
 };
 
-Client.sendClick = function(x,y){
-  Client.socket.emit('click',{x:x,y:y});
+Client.requestNewGame = function(currentPlayerId, opponentPlayerId) {
+
+    Client.socket.emit('requestnewgame', currentPlayerId, opponentPlayerId);
+
 };
 
 Client.updatePlayerList = function(playerList) {
     Client.socket.emit('updatePlayerList', playerList);
 };
 
-Client.socket.on('newplayer',function(data){
-    Game.addNewPlayer(data);
+
+Client.acceptJoinGame = function(currentPlayerId, opponentPlayerId) {
+
+};
+
+Client.declineJoinGame = function(currentPlayerId, opponentPlayerId) {
+
+
+
+};
+
+
+
+
+
+
+
+
+Client.socket.on('newplayer',function(newPlayer){
+    Game.addNewPlayer(newPlayer);
 });
 
-Client.socket.on('allplayers',function(data){
-    for(var i = 0; i < data.length; i++){
-        Game.addNewPlayer(data[i]);
+Client.socket.on('requestnewgame',function(data){
+
+    Game.requestNewGame(data);
+
+});
+
+Client.socket.on('pendinggame', function() {
+
+    Game.pendingNewGame();
+
+});
+
+Client.socket.on('allplayers',function(allPlayers, currentPlayer){
+
+    Game.thisPlayer = currentPlayer;
+
+    for(var i = 0; i < allPlayers.length; i++){
+        Game.addNewPlayer(allPlayers[i]);
     }
+
+    Game.thisPlayer = currentPlayer;
+    Login.toggle(false);
+    Game.togglePlayerList(true);
+    Game.toggleHeader(true);
 
     // Client.socket.on('move',function(data){
     //     Game.movePlayer(data.id,data.x,data.y);

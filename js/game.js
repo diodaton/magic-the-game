@@ -7,6 +7,10 @@ $(document).ready(function(){
 
 var Game = {};
 
+Game.playerMap = [];
+
+Game.thisPlayer;
+
 
 var HTML_header = '<ul>'
     + '<li><a class="active" href="#home">Home</a></li>'
@@ -23,17 +27,12 @@ Game.togglePlayerList = function(val) {
 };
 
 Game.create = function(){
-    Game.playerMap = [];
 
     Login.requestUsername();
 };
 
 Game.addNewPlayer = function(player){
     Game.playerMap.push(player);
-
-    Login.toggle(false);
-    Game.togglePlayerList(true);
-    Game.toggleHeader(true);
 
     Game.updatePlayerList(Game.playerMap);
 };
@@ -67,15 +66,45 @@ Game.updatePlayerList = function(playerMap) {
             + '<th>Deckname</th>'
         + '</tr>';
     for (var i = 0; i < playerMap.length; i++) {
-        playerList += '<tr>'
-            + '<td class="player-list-single-player-username">' + playerMap[i].id + '</td>'
-            + '<td class="player-list-single-player-deckname">' + playerMap[i].deckname + '</td>'
-            + '</tr>';
-    }
 
+        if (playerMap[i].id != Game.thisPlayer.id) {
+            playerList += '<tr class="player-button" val="' + playerMap[i].id + '">'
+                + '<td class="player-list-single-player-username">' + playerMap[i].id + '</td>'
+                + '<td class="player-list-single-player-deckname">' + playerMap[i].deckname + '</td>'
+                + '</tr>';
+        }
+    }
     playerList += "</table>";
 
     $(".player-list-wrapper").html(playerList);
+
+    $('.player-button').click(function(){
+
+        Client.requestNewGame(Game.thisPlayer.id, $(this).attr('val'))
+
+    });
+};
+
+
+Game.requestNewGame = function(opponentPlayer) {
+
+        var askToJoin = confirm(opponentPlayer.id + ' would like to play a game of Magic. Do you accept?');
+
+        if (askToJoin == true) {
+
+            Client.acceptJoinGame(Game.thisPlayer.id, opponentPlayer);
+
+            return;
+        }
+
+        Client.declineJoinGame(Game.thisPlayer.id, opponentPlayer)
+
+};
+
+Game.pendingNewGame = function() {
+
+    confirm('Waiting for opponent to accept. You will be automatically placed in the game.');
+
 };
 
 Game.toggleHeader = function(value) {
@@ -86,4 +115,4 @@ Game.toggleHeader = function(value) {
         $(".header").empty();
     }
 
-}
+};
