@@ -40,7 +40,7 @@
 	cursor: pointer;
 }
 
-.player-list-container {
+.player-list-container, .game-container {
 	display:none;
 	width: 100%;
   	text-align: center;
@@ -50,6 +50,29 @@
 .player-list-wrapper span {
 	font-weight: bold;
 }
+
+
+
+
+.this-player-card {
+
+    position: absolute;
+    bottom:10px;
+    width:20%;
+
+}
+
+.opponent-player-card {
+    position:absolute;
+    top: 100px;
+    width:20%;
+}
+
+.opponent-player-card:hover, .this-player-card:hover {
+
+    z-index: 1000;
+}
+
 
 
 
@@ -102,4 +125,11 @@
 
 .header li a:hover {
     background-color: #111;
+}
+
+.username {
+    position: absolute;
+    color: white;
+    right: 20px;
+    top: 20px;
 }

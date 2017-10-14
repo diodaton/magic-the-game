@@ -65,6 +65,9 @@ Login.requestUsername = function() {
 
     $('#decklist').keyup(function (e) {
 
+        if (Login.skipSearch()) {
+            return;
+        }
 
         Login.delay(function(){
             Login.searchCards($('#decklist').val());
@@ -75,6 +78,10 @@ Login.requestUsername = function() {
 
     $('#decklist').on('paste', function() {
 
+        if (Login.skipSearch()) {
+            return;
+        }
+
         Login.delay(function() {
             Login.searchCards($('#decklist').val());
         }, 1000 );
@@ -84,15 +91,32 @@ Login.requestUsername = function() {
 };
 
 
+Login.skipSearch = function() {
+
+    var decklist = $('#decklist').val();
+
+     if(decklist === undefined || decklist === '' || decklist.trim() == '') {
+         return true;
+    }
+
+    return false;
+};
+
+
+
 Login.searchCards = function(cardList) {
 
     $('#card-list').html('');
+    Game.thisPlayerDeck = [];
 
     var cardArray = cardList.split(/\n/);
 
     var stringBuilder_Fail = '';
 
     var hasCards = false;
+
+    var totalCardCount = 0;
+
     for (var i=0; i < cardArray.length; i++) {
 
         var cardNameNUmberArray = cardArray[i].split(' ');
@@ -115,7 +139,7 @@ Login.searchCards = function(cardList) {
         }
 
         if (cardName !== '') {
-            var cardData = GetCard.search(cardName.trim());
+            var cardData = Card.search(cardName.trim());
 
 
             var foundCard = false;
@@ -129,12 +153,16 @@ Login.searchCards = function(cardList) {
                     if (card !== undefined 
                         && card.imageUrl !== undefined 
                         && card.name.toLowerCase() == cardName.trim().toLowerCase() 
-                        && !GetCard.blockedSets.includes(card.setName)) {
+                        && !Card.blockedSets.includes(card.setName)) {
 
                         var stringBuilder = '';
                         for (var l=0; l < Number(cardCount); l++) {
                             stringBuilder += '<img src="' + card.imageUrl + '"/>';
                         }
+
+                        totalCardCount += Number(cardCount);
+
+                        Game.thisPlayerDeck.push({count:Number(cardCount), card: card});
 
                         foundCard = true;
                         hasCards = true;
@@ -156,9 +184,13 @@ Login.searchCards = function(cardList) {
         }
     }
 
+    if (hasCards) {
+        $('#card-list').prepend('<h3>You have ' + totalCardCount + ' cards in your deck</h3>');
+    }
+
     if (!hasCards || stringBuilder_Fail != '') {
 
-        $.notify('The Following Cards could not be found:\n\n' + stringBuilder_Fail, { position:"top right", autohide: false, clickToHide: true, autoHideDelay:60000 });
+        $.notify('The Following Cards could not be found:\n\n' + stringBuilder_Fail, { position:"top right", autohide: false, clickToHide: true, autoHideDelay:7500 });
     } 
 
 };

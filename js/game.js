@@ -7,9 +7,20 @@ $(document).ready(function(){
 
 var Game = {};
 
-Game.playerMap = [];
 
+Game.CARD_BACK = '/img/card-back.jpg';
+
+
+
+Game.playerMap = [];
 Game.thisPlayer;
+Game.thisPlayerDeck = [];
+
+
+/**
+ * OPPONENT DETAILS
+ */
+Game.opponent = {};
 
 
 var HTML_header = '<ul>'
@@ -26,22 +37,34 @@ Game.togglePlayerList = function(val) {
     }
 };
 
+Game.toggleGame = function(val) {
+
+    if (val) {
+        $(".game-container").show();
+    } else {
+        $(".game-container").hide();
+    }
+};
+
 Game.create = function(){
 
     Login.requestUsername();
 };
 
 Game.addNewPlayer = function(player){
-    Game.playerMap.push(player);
 
-    Game.updatePlayerList(Game.playerMap);
+    if (Game.thisPlayer !== undefined) {
+        Game.playerMap.push(player);
+
+        Game.updatePlayerList(Game.playerMap);
+    }
 };
 
 
-Game.removePlayer = function(player){
+Game.removePlayer = function(removedPlayerId){
     var indexToRemove = -1;
     for (var i = 0; i < Game.playerMap.length; i++) {
-        if (Game.playerMap[i].id === player.id) {
+        if (Game.playerMap[i].id === removedPlayerId) {
             indexToRemove = i;
             break;
         }
@@ -86,20 +109,24 @@ Game.updatePlayerList = function(playerMap) {
 };
 
 
-Game.requestNewGame = function(opponentPlayer) {
+Game.requestNewGame = function(requestingPlayer) {
 
-        var askToJoin = confirm(opponentPlayer.id + ' would like to play a game of Magic. Do you accept?');
+        if (confirm(requestingPlayer.id + ' would like to play a game of Magic. Do you accept?')) {
 
-        if (askToJoin == true) {
+            Client.acceptJoinGame(Game.thisPlayer.id, requestingPlayer.id);
 
-            Client.acceptJoinGame(Game.thisPlayer.id, opponentPlayer);
-
-            return;
+        } else {
+            Client.declineJoinGame(Game.thisPlayer.id, requestingPlayer.id)
         }
 
-        Client.declineJoinGame(Game.thisPlayer.id, opponentPlayer)
 
 };
+
+Game.responseDeclinedGame = function(message) {
+
+    alert(message);
+
+}
 
 Game.pendingNewGame = function() {
 
@@ -111,8 +138,50 @@ Game.toggleHeader = function(value) {
 
     if (value) {
         $(".header").html(HTML_header);
+        $('.username').html('Welcome, ' + Game.thisPlayer.id);
     } else {
         $(".header").empty();
     }
 
 };
+
+
+Game.findPlayer = function(playerId) {
+
+    for(var i=0; i < Game.playerMap.length; i++) {
+        if (Game.playerMap[i].id == playerId) {
+            return Game.playerMap[i];
+        }
+    }
+
+    return null;
+}
+
+
+/***********************************************************************************************************************
+ * ROOM FUNCTIONS
+ **********************************************************************************************************************/
+
+Game.createRoom = function(opponentId) {
+
+    Game.togglePlayerList(false);
+
+
+
+    Game.opponent.deck = Card.getAllCards(Game.findPlayer(opponentId).decklist);
+
+    $('.game-container').append('<h3>you are in a game! It is you ' + Game.thisPlayer.id + ' versus ' + opponentId + '</h3> <br />')
+        .append('Your deck <br />');
+
+    Card.displaCards(Game.thisPlayerDeck, '.game-container', 'this-player-card');
+
+    $('.game-container').append('<br /> And your opponents deck <br />');
+
+    Card.displaCards(Game.opponent.deck , '.game-container', 'opponent-player-card');
+
+    Game.toggleGame(true);
+
+
+};
+
+
