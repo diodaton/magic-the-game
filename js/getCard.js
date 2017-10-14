@@ -20,7 +20,7 @@ return $.ajax({
 };
 
 
-Card.displaCards = function(playerDeck, parentClass, imgClass){
+Card.displayCards = function(playerDeck, parentClass, imgClass){
 
 
 
@@ -34,7 +34,7 @@ Card.displaCards = function(playerDeck, parentClass, imgClass){
 
             var stringBuilder = '';
             for (var l=0; l < Number(cardCount); l++) {
-                stringBuilder += '<img style="left:' + positionCount + 'px;" class="' + imgClass + '" src="' + card.imageUrl + '"/>';
+                stringBuilder += '<img style="width: 8%;" class="' + imgClass + '" src="' + card.imageUrl + '"/>';
 
                 positionCount += 40;
             }

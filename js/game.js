@@ -7,27 +7,38 @@ $(document).ready(function(){
 
 var Game = {};
 
+/***********************************************************************************************************************
+ * CONSTANTS
+ **********************************************************************************************************************/
 
-Game.CARD_BACK = '/img/card-back.jpg';
-
-
-
-Game.playerMap = [];
-Game.thisPlayer;
-Game.thisPlayerDeck = [];
-
-
-/**
- * OPPONENT DETAILS
- */
-Game.opponent = {};
-
+ Game.CARD_BACK = '/img/card-back.jpg';
 
 var HTML_header = '<ul>'
     + '<li><a class="active" href="#home">Home</a></li>'
     + '</ul>';
 
 
+/***********************************************************************************************************************
+ * THIS PLAYER DETAILS
+ **********************************************************************************************************************/
+
+Game.playerMap = [];
+Game.thisPlayer;
+Game.thisPlayerDeck = [];
+
+
+/***********************************************************************************************************************
+ * OPPONENT DETAILS
+ **********************************************************************************************************************/
+
+ Game.opponent = {};
+
+
+
+
+/***********************************************************************************************************************
+ * TOGGLE FUNCTIONS
+ **********************************************************************************************************************/
 Game.togglePlayerList = function(val) {
 
     if (val) {
@@ -46,6 +57,28 @@ Game.toggleGame = function(val) {
     }
 };
 
+Game.toggleHeader = function(value) {
+
+    if (value) {
+        $(".header").html(HTML_header);
+        $('.username').html('Welcome, ' + Game.thisPlayer.id);
+    } else {
+        $(".header").empty();
+    }
+
+};
+
+
+
+
+
+
+
+
+
+/***********************************************************************************************************************
+ * PLAYER FUNCTIONS
+ **********************************************************************************************************************/
 Game.create = function(){
 
     Login.requestUsername();
@@ -74,9 +107,6 @@ Game.removePlayer = function(removedPlayerId){
         Game.playerMap.splice(indexToRemove, 1);
     }
 
-    // Game.playerMap = $.grep(Game.playerMap, function(value) {
-    //     return value != id;
-    // });
     Game.updatePlayerList(Game.playerMap);
 };
 
@@ -134,17 +164,6 @@ Game.pendingNewGame = function() {
 
 };
 
-Game.toggleHeader = function(value) {
-
-    if (value) {
-        $(".header").html(HTML_header);
-        $('.username').html('Welcome, ' + Game.thisPlayer.id);
-    } else {
-        $(".header").empty();
-    }
-
-};
-
 
 Game.findPlayer = function(playerId) {
 
@@ -155,7 +174,12 @@ Game.findPlayer = function(playerId) {
     }
 
     return null;
-}
+};
+
+
+
+
+
 
 
 /***********************************************************************************************************************
@@ -170,17 +194,11 @@ Game.createRoom = function(opponentId) {
 
     Game.opponent.deck = Card.getAllCards(Game.findPlayer(opponentId).decklist);
 
-    $('.game-container').append('<h3>you are in a game! It is you ' + Game.thisPlayer.id + ' versus ' + opponentId + '</h3> <br />')
-        .append('Your deck <br />');
+    Card.displayCards(Game.thisPlayerDeck, '.game-this-player-area-container', 'this-player-card');
 
-    Card.displaCards(Game.thisPlayerDeck, '.game-container', 'this-player-card');
-
-    $('.game-container').append('<br /> And your opponents deck <br />');
-
-    Card.displaCards(Game.opponent.deck , '.game-container', 'opponent-player-card');
+    Card.displayCards(Game.opponent.deck , '.game-opponent-area-container', 'opponent-player-card');
 
     Game.toggleGame(true);
-
 
 };
 
